@@ -30,13 +30,16 @@ TaggedMediaFeed.prototype.get = function () {
                 .send()
                 .then(function(data) {
                     that.moreAvailable = data.more_available && !!data.next_max_id;
-                    if (!that.moreAvailable && !_.isEmpty(data.ranked_items) && !that.getCursor())
-                        throw new Exceptions.OnlyRankedItemsError;
                     if (that.moreAvailable)
                         that.setCursor(data.next_max_id);
-                    return _.map(data.items, function (medium) {
-                        return new Media(that.session, medium);
-                    });
+                    return {
+                        items: _.map(data.items, function (medium) {
+                            return new Media(that.session, medium);
+                        }),
+                        rankedItems: _.map(data.ranked_items, function (medium) {
+                            return new Media(that.session, medium);
+                        }),
+                    }
                 })
         });
 };
